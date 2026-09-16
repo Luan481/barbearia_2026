@@ -2,7 +2,7 @@ import { pool } from "../database/connection.js";
 import { CriarUser, User } from "../types/usuarios.js"
 
 class UserService {
-    async create(dados: CriarUser): Promise<User>{
+    async create(dados: CriarUser): Promise<User> {
         try {
             const res = await pool.query<User>(
                 `INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, tipo, ativo)
@@ -26,7 +26,19 @@ class UserService {
         try {
 
             const res = await pool.query<User>("SELECT * FROM usuarios");
-            console.log(res.rows)
+
+            return res.rows;
+
+        } catch (error) {
+            console.error("Erro ao buscar usuarios:", error);
+            throw new Error("Erro no banco de dados");
+        }
+    }
+
+    async getById(id: String): Promise<User[]> {
+        try {
+
+            const res = await pool.query<User>("SELECT * FROM usuarios WHERE id = $1", [id]);
 
             return res.rows;
 

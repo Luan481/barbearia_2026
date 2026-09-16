@@ -1,6 +1,6 @@
 import { Router, Request, type Response } from "express";
 import { userService } from "../services/users.service";
-import { CriarUser } from "../types/usuarios";
+import { CriarUser, User } from "../types/usuarios";
 
 export const usersRouter = Router()
 
@@ -18,6 +18,28 @@ usersRouter.get("/", async (_request: Request, response: Response) => {
     }
 
 })
+
+usersRouter.get("/:id", async (request: Request<{ id: string }>, response: Response) => {
+    try {
+        const id = String(request.params.id);
+
+        if (!String(id)) {
+            return response.status(400).json({
+                message: "ID inválido",
+            });
+        }
+
+        const cliente = await userService.getById(id);
+
+        return response.json(cliente);
+    } catch (error) {
+        console.error(error);
+
+        return response.status(404).json({
+            message: "Cliente não encontrado",
+        });
+    }
+});
 
 usersRouter.post("/", async (_request: Request<{}, {}, CriarUser>, response: Response) => {
     try {
