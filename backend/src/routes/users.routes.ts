@@ -56,3 +56,53 @@ usersRouter.post("/", async (_request: Request<{}, {}, CriarUser>, response: Res
         });
     }
 })
+
+usersRouter.patch("/inativar/:id", async (request: Request<{ id: string }>, response: Response) => {
+    try {
+        const id = request.params.id
+
+        if (!String(id)) {
+            return response.status(400).json({
+                message: "ID inválido",
+            });
+        }
+
+        const cliente = await userService.inativar(id);
+
+        response.status(200).json({mensagem: `Cliente inativado!`})
+        return response.json(cliente);
+
+    }
+    catch (error) {
+        console.error(error);
+
+        return response.status(404).json({
+            message: "Cliente não encontrado",
+        });
+    }
+})
+
+usersRouter.patch("/ativar/:id", async (request: Request<{ id: string }>, response: Response) => {
+    try {
+        const id = request.params.id
+
+        if (!String(id)) {
+            return response.status(400).json({
+                message: "ID inválido",
+            });
+        }
+
+        const cliente = await userService.ativar(id);
+
+        response.status(200).json({mensagem: `Cliente ativado!`})
+        return response.json(cliente);
+
+    }
+    catch (error) {
+        console.error(error);
+
+        return response.status(404).json({
+            message: "Cliente não encontrado",
+        });
+    }
+})
