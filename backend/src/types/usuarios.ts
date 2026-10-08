@@ -2,10 +2,11 @@ export interface CriarUser {
     nome: string
     email: string
     senha: string
-    telefone: number
-    nascimento: string
-    tipo: string
-    ativo: boolean
+    telefone?: string | null
+    data_nascimento?: string | null
+    nascimento?: string | null
+    tipo?: string
+    ativo?: boolean
 }
 
 export interface User {
@@ -13,8 +14,8 @@ export interface User {
     nome: string
     email: string
     senha: string
-    telefone: number
-    nascimento: string
+    telefone: string | null
+    data_nascimento: string | null
     tipo: string
     ativo: boolean
 }

@@ -5,10 +5,10 @@ class UserService {
     async create(dados: CriarUser): Promise<User> {
         try {
             const res = await pool.query<User>(
-                `INSERT INTO usuario (nome, email, senha, telefone, data_nascimento, tipo, ativo)
+                `INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, tipo, ativo)
                  VALUES ($1, $2, $3, $4, $5, $6, $7)
                  RETURNING *`,
-                [dados.nome, dados.email, dados.senha, dados.telefone, dados.nascimento, dados.tipo, dados.ativo]
+                [dados.nome, dados.email, dados.senha, dados.telefone ?? null, dados.data_nascimento ?? dados.nascimento ?? null, dados.tipo ?? "CLIENTE", dados.ativo ?? true]
             );
 
             const cliente = res.rows[0];
@@ -17,7 +17,7 @@ class UserService {
 
         } catch (error) {
             console.error("Erro ao criar usuario:", error);
-            throw new Error("Erro no banco de dados");
+            throw error;
         }
     }
 
@@ -25,35 +25,35 @@ class UserService {
     async getAll(): Promise<User[]> {
         try {
 
-            const res = await pool.query<User>("SELECT * FROM usuario");
+            const res = await pool.query<User>("SELECT * FROM usuarios");
 
             return res.rows;
 
         } catch (error) {
             console.error("Erro ao buscar usuarios:", error);
-            throw new Error("Erro no banco de dados");
+            throw error;
         }
     }
 
-    async getById(id: String): Promise<User[]> {
+    async getById(id: string): Promise<User[]> {
         try {
 
-            const res = await pool.query<User>("SELECT * FROM usuario WHERE id = $1", [id]);
+            const res = await pool.query<User>("SELECT * FROM usuarios WHERE id = $1", [id]);
 
             return res.rows;
 
         } catch (error) {
             console.error("Erro ao buscar usuarios:", error);
-            throw new Error("Erro no banco de dados");
+            throw error;
         }
     }
 
-    async inativar(id: String): Promise<User> {
+    async inativar(id: string): Promise<User> {
         try {
             const res = await pool.query<User>(`
-                UPDATE usuario 
-                SET ativo = false 
-                WHERE id = $1 
+                UPDATE usuarios
+                SET ativo = false
+                WHERE id = $1 RETURNING *
                 `, [id])
 
             const resultado = res.rows[0]
@@ -69,16 +69,16 @@ class UserService {
         }
     }
 
-        async ativar(id: String): Promise<User> {
+        async ativar(id: string): Promise<User> {
         try {
             const res = await pool.query<User>(`
-                UPDATE usuario
-                SET ativo = true 
-                WHERE id = $1 
+                UPDATE usuarios
+                SET ativo = true
+                WHERE id = $1 RETURNING *
                 `, [id])
 
             const resultado = res.rows[0]
-            
+
             console.log(`Usuário ativado`)
 
             return resultado

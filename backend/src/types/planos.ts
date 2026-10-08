@@ -10,5 +10,5 @@ export interface CriarPlano {
     nome: string
     quantidade_cortes: number
     preco: number
-    ativo: boolean
+    ativo?: boolean
 }

@@ -11,22 +11,22 @@ class ProdutosService {
         }
         catch (error) {
             console.error('Erro ao visualizar produtos', error)
-            throw new Error('Erro no banco de dados')
+            throw error
         }
     }
     async create(dados: CriarProdutos): Promise<Produtos> {
         try {
-            const res = await pool.query<Produtos>(`INSERT INTO produtos(nome, preco, estoque) VALUES ($1, $2, $3) RETURNING *`, [dados.nome, dados.preco, dados.estoque])
+            const res = await pool.query<Produtos>(`INSERT INTO produtos(nome, preco, estoque, ativo) VALUES ($1, $2, $3, $4) RETURNING *`, [dados.nome, dados.preco, dados.estoque ?? 0, dados.ativo ?? true])
 
             return res.rows[0]
         }
         catch (error) {
             console.error('Erro ao criar produto', error)
-            throw new Error('Erro no banco de dados')
+            throw error
         }
     }
 
-    async getById(id: String): Promise<Produtos[]> {
+    async getById(id: string): Promise<Produtos[]> {
         try {
 
             const res = await pool.query<Produtos>("SELECT * FROM produtos WHERE id = $1", [id]);
@@ -35,16 +35,16 @@ class ProdutosService {
 
         } catch (error) {
             console.error("Erro ao buscar produtos:", error);
-            throw new Error("Erro no banco de dados");
+            throw error;
         }
     }
 
-    async inativar(id: String): Promise<Produtos> {
+    async inativar(id: string): Promise<Produtos> {
         try {
             const res = await pool.query<Produtos>(`
-                UPDATE produtos 
-                SET ativo = false 
-                WHERE id = $1 
+                UPDATE produtos
+                SET ativo = false
+                WHERE id = $1 RETURNING *
                 `, [id])
 
             const resultado = res.rows[0]
@@ -60,12 +60,12 @@ class ProdutosService {
         }
     }
 
-    async ativar(id: String): Promise<Produtos> {
+    async ativar(id: string): Promise<Produtos> {
         try {
             const res = await pool.query<Produtos>(`
-                UPDATE produtos 
-                SET ativo = true 
-                WHERE id = $1 
+                UPDATE produtos
+                SET ativo = true
+                WHERE id = $1 RETURNING *
                 `, [id])
 
             const resultado = res.rows[0]

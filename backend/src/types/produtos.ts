@@ -9,6 +9,6 @@ export interface Produtos {
 export interface CriarProdutos {
     nome: string
     preco: number
-    estoque: number
-    ativo: boolean
+    estoque?: number
+    ativo?: boolean
 }

@@ -1,108 +1,58 @@
-import { Router, Request, type Response } from "express";
-import { userService } from "../services/users.service";
-import { CriarUser, User } from "../types/usuarios";
+import { Request, Response, Router } from "express"
+import { userService } from "../services/users.service"
+import { CriarUser } from "../types/usuarios"
+import { isUuid, responderErro } from "./route-utils"
 
 export const usersRouter = Router()
 
 usersRouter.get("/", async (_request: Request, response: Response) => {
     try {
-        const res = await userService.getAll()
-
-        return response.json(res)
+        return response.json(await userService.getAll())
     } catch (error) {
-        console.error(error)
-
-        return response.status(500).json({
-            error: "Erro Interno"
-        })
+        return responderErro(response, error)
     }
-
 })
 
 usersRouter.get("/:id", async (request: Request<{ id: string }>, response: Response) => {
+    if (!isUuid(request.params.id)) return response.status(400).json({ message: "ID inválido" })
     try {
-        const id = String(request.params.id);
-
-        if (!String(id)) {
-            return response.status(400).json({
-                message: "ID inválido",
-            });
-        }
-
-        const cliente = await userService.getById(id);
-
-        return response.json(cliente);
+        const resultado = await userService.getById(request.params.id)
+        if (!resultado.length) return response.status(404).json({ message: "Registro não encontrado" })
+        return response.json(resultado)
     } catch (error) {
-        console.error(error);
-
-        return response.status(404).json({
-            message: "Cliente não encontrado",
-        });
-    }
-});
-
-usersRouter.post("/", async (_request: Request<{}, {}, CriarUser>, response: Response) => {
-    try {
-        const dados = _request.body
-
-        const user = await userService.create(dados)
-
-        return response.status(201).json(user);
-    } catch (error) {
-        console.error(error);
-
-        return response.status(500).json({
-            message: "Erro ao criar usuarios",
-        });
+        return responderErro(response, error)
     }
 })
 
-usersRouter.patch("/inativar/:id", async (request: Request<{ id: string }>, response: Response) => {
-    try {
-        const id = request.params.id
-
-        if (!String(id)) {
-            return response.status(400).json({
-                message: "ID inválido",
-            });
-        }
-
-        const cliente = await userService.inativar(id);
-
-        response.status(200).json({mensagem: `Cliente inativado!`})
-        return response.json(cliente);
-
+usersRouter.post("/", async (request: Request<{}, {}, CriarUser>, response: Response) => {
+    if (!request.body || typeof request.body !== "object" || Array.isArray(request.body)) {
+        return response.status(400).json({ message: "Corpo da requisição inválido" })
     }
-    catch (error) {
-        console.error(error);
-
-        return response.status(404).json({
-            message: "Cliente não encontrado",
-        });
+    try {
+        return response.status(201).json(await userService.create(request.body))
+    } catch (error) {
+        return responderErro(response, error)
     }
 })
 
 usersRouter.patch("/ativar/:id", async (request: Request<{ id: string }>, response: Response) => {
+    if (!isUuid(request.params.id)) return response.status(400).json({ message: "ID inválido" })
     try {
-        const id = request.params.id
-
-        if (!String(id)) {
-            return response.status(400).json({
-                message: "ID inválido",
-            });
-        }
-
-        const cliente = await userService.ativar(id);
-
-        response.status(200).json({mensagem: `Cliente ativado!`})
-        return response.json(cliente);
-
+        const resultado = await userService.ativar(request.params.id)
+        if (!resultado) return response.status(404).json({ message: "Registro não encontrado" })
+        return response.json(resultado)
+    } catch (error) {
+        return responderErro(response, error)
     }
-    catch (error) {
-        console.error(error);
+})
 
-        return response.status(404).json({
-            message: "Cliente não encontrado",
-        });
+usersRouter.patch("/inativar/:id", async (request: Request<{ id: string }>, response: Response) => {
+    if (!isUuid(request.params.id)) return response.status(400).json({ message: "ID inválido" })
+    try {
+        const resultado = await userService.inativar(request.params.id)
+        if (!resultado) return response.status(404).json({ message: "Registro não encontrado" })
+        return response.json(resultado)
+    } catch (error) {
+        return responderErro(response, error)
     }
 })
