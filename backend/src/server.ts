@@ -11,12 +11,16 @@ import { vendaItemRouter } from "./routes/venda_itens.routes"
 import { assinaturaRouter } from "./routes/assinaturas.routes"
 import { beneficioAniversarioRouter } from "./routes/beneficios_aniversario.routes"
 import { authRoutes } from "./routes/auth.routes"
+import { ensureAuth } from "./middleware/authmiddleware"
 
 const port = 3000
 
 export const app = express()
 
 app.use(express.json())
+app.use(ensureAuth)
+
+
 app.use("/users", usersRouter)
 app.use("/services", servicoRoute)
 app.use("/products", produtoRouter)
