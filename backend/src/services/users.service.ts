@@ -1,14 +1,25 @@
 import { pool } from "../database/connection.js";
+import bcrypt from "bcrypt"
 import { CriarUser, User } from "../types/usuarios.js"
+
+const saltRounds = Number(process.env.BCRYPT_SALTS)
 
 class UserService {
     async create(dados: CriarUser): Promise<User> {
+
+        if (!saltRounds) {
+            throw new Error('Configuração bcrypt mal feita')
+        }
+
+        const senhaHash = await bcrypt.hash(dados.senha, saltRounds);
+
+
         try {
             const res = await pool.query<User>(
                 `INSERT INTO usuarios (nome, email, senha, telefone, data_nascimento, tipo, ativo)
                  VALUES ($1, $2, $3, $4, $5, $6, $7)
                  RETURNING *`,
-                [dados.nome, dados.email, dados.senha, dados.telefone ?? null, dados.data_nascimento ?? dados.nascimento ?? null, dados.tipo ?? "CLIENTE", dados.ativo ?? true]
+                [dados.nome, dados.email, senhaHash, dados.telefone ?? null, dados.data_nascimento ?? dados.nascimento ?? null, dados.tipo ?? "CLIENTE", dados.ativo ?? true]
             );
 
             const cliente = res.rows[0];
@@ -69,7 +80,7 @@ class UserService {
         }
     }
 
-        async ativar(id: string): Promise<User> {
+    async ativar(id: string): Promise<User> {
         try {
             const res = await pool.query<User>(`
                 UPDATE usuarios

@@ -10,6 +10,7 @@ import { vendaRouter } from "./routes/vendas.routes"
 import { vendaItemRouter } from "./routes/venda_itens.routes"
 import { assinaturaRouter } from "./routes/assinaturas.routes"
 import { beneficioAniversarioRouter } from "./routes/beneficios_aniversario.routes"
+import { authRoutes } from "./routes/auth.routes"
 
 const port = 3000
 
@@ -27,6 +28,8 @@ app.use("/sales", vendaRouter)
 app.use("/sale-items", vendaItemRouter)
 app.use("/subscriptions", assinaturaRouter)
 app.use("/birthday-benefits", beneficioAniversarioRouter)
+app.use("/auth", authRoutes)
+
 
 app.listen(port, () => {
     console.log(`API rodando em http://localhost:${port}`)

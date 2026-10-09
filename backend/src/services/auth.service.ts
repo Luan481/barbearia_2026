@@ -15,18 +15,18 @@ function getJwtSecret(): string {
 
 export class AuthService {
     async login(dados: LoginData): Promise<LoginResponse> {
-        const query = 'SELECT * FROM funcionario WHERE email = $1';
+        const query = 'SELECT * FROM usuarios WHERE email = $1';
 
         const result = await pool.query<Login>(query, [dados.email]);
-        const funcionario = result.rows[0];
+        const user = result.rows[0];
 
-        if (!funcionario) {
+        if (!user) {
             throw new Error('E-mail ou senha incorretos.');
         }
 
         const senhaValida = await bcrypt.compare(
             dados.senha,
-            funcionario.senha
+            user.senha
         );
 
         if (!senhaValida) {
@@ -37,9 +37,9 @@ export class AuthService {
 
         const token = jwt.sign(
             {
-                id: funcionario.id,
-                nome: funcionario.nome,
-                tipo: funcionario.tipo,
+                id: user.id,
+                nome: user.nome,
+                tipo: user.tipo,
             },
             secret,
             {
@@ -48,9 +48,9 @@ export class AuthService {
         );
 
         return {
-            nome: funcionario.nome,
-            email: funcionario.email,
-            tipo: funcionario.tipo,
+            nome: user.nome,
+            email: user.email,
+            tipo: user.tipo,
             token,
         };
     }
