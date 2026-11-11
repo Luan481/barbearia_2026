@@ -18,8 +18,8 @@ const port = 3000
 export const app = express()
 
 app.use(express.json())
+app.use("/auth", authRoutes)
 app.use(ensureAuth)
-
 
 app.use("/users", usersRouter)
 app.use("/services", servicoRoute)
@@ -32,7 +32,6 @@ app.use("/sales", vendaRouter)
 app.use("/sale-items", vendaItemRouter)
 app.use("/subscriptions", assinaturaRouter)
 app.use("/birthday-benefits", beneficioAniversarioRouter)
-app.use("/auth", authRoutes)
 
 
 app.listen(port, () => {
